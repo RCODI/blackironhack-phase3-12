@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- For travel route -->
+  
+  <link rel="stylesheet" type="text/css" href="css/main.css?ver=3">
+<!--
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+ -->
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script src="https://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="js/jquery.fullPage.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+	$(document).ready(function() {
+		$('#fullpage').fullpage({
+			anchors: ["intro-page", "app-page", "forum-page"],
+			loopBottom: true,
+		});
+	});  
+  </script>
+
+  <title>SafeTravels</title> &nbsp;
+  <link rel="shortcut icon" href="image/icon.png" />
+
+<style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+      .controls {
+        margin-top: 10px;
+        border: 1px solid transparent;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      #pac-input {
+        background-color: #fff;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        margin-left: 12px;
+        padding: 0 11px 0 13px;
+        text-overflow: ellipsis;
+        width: 300px;
+      }
+
+      #pac-input:focus {
+        border-color: #4d90fe;
+      }
+
+      .pac-container {
+        font-family: Roboto;
+      }
+
+      #type-selector {
+        color: #fff;
+        background-color: #4d90fe;
+        padding: 5px 11px 0px 11px;
+      }
+
+      #type-selector label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+      }
+    </style>
+
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <img src="image/icon.png" class="navbar-icon"/>
+        <a class="navbar-brand" href="#intro-page">Safe Travels</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li><a href="#app-page">Plan Your Travel</a></li>
+		  <li><a href="#forum-page">Discussion Forum</a></li>
+		  <li><a href="#app-page">Tip of the Day</a></li>
+        </ul>
+        <div class="nav-bar-current-info">
+          <img id="weather-icon">
+          <p id="current-weather"></p>
+          <p id="current-date"></p>
+        </div>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container -->
+  </nav>
+
+
+  <div id="fullpage">
+    <!-- Intro section -->
+	<div class="section">
+      <div class="intro-section">
+	    <div class="container">
+          <div class="row">
+            <div class="col-lg-12">
+              <h1>Plan a Safe Travel</h1>
+              <h3>Worried about getting infected during your travel?<br>
+                <br> SafeTravels application suggests the most safe travel route to your destination.</h3>
+              <a class="btn btn-primary btn-lg" href="#app-page">Plan Your Travel</a>
+            </div>
+          </div>
+	   	</div>
+	  </div>
+	</div>
+
+    <!-- The app section -->
+    <div class="section">
+	  <div class="about-section">
+    	<div class="container">
+          <!-- map layer -->
+   	      <div class="map-layer">
+    		<!-- <div class="form-control">
+        	  <label class="checkbox-inline">
+        		<input type="checkbox" id="layer-traffic">Traffic
+        	  </label>
+    		</div> -->
+          </div>
+
+          <!-- Adding location maps -->
+          <!-- <input id="pac-input" class="controls" type="text"
+        placeholder="Choose Your Destination">
+    <div id="type-selector" class="controls">
+      <input type="radio" name="type" id="changetype-all" checked="checked">
+      <label for="changetype-all">All</label>
+
+      <input type="radio" name="type" id="changetype-establishment">
+      <label for="changetype-establishment">Establishments</label>
+
+      <input type="radio" name="type" id="changetype-address">
+      <label for="changetype-address">Addresses</label>
+
+      <input type="radio" name="type" id="changetype-geocode">
+      <label for="changetype-geocode">Geocodes</label>
+    </div>	-->
+
+          <!-- map -->
+		  <div id="map"></div>
+
+		  <!-- side menu -->
+		  <div class="side-menu">
+			<!-- side menu tabs -->
+			<div id="tabs">
+			  <ul class="nav nav-tabs nav-justified" id="customize-tag">
+			    <li class="active"><a data-toggle="tab" href="#weather"><strong>Route Information</strong></a></li>
+		        <li><a data-toggle="tab" href="#basic"><strong>Climate Information</strong></a></li>
+		        <li><a data-toggle="tab" href="#comparison"><strong>Threat Analysis</strong></a></li>
+		        <li id="tab-veggies"><a data-toggle="tab" href="#veggie-chart"><strong>Safest Route</strong></a></li>
+		       	<li id="tab-directory"><a data-toggle="tab" href="#directory"><strong>Common Viruses</strong></a></li>
+			  </ul>
+			</div>
+			  
+			<!-- side menu tab contents-->
+			<div class="tab-content">
+
+			  <!--tab content for weather-->
+			  <div id="weather" class="tab-pane fade in active">
+			  	<div id="menu-cover">
+
+        <!-- Travel Form Starts -->
+            <div class="row">
+    <div class="col-xs-12 col-sm-8">
+      <form id="routes">
+          <div id="target" class="place-inputs">
+            <div class="place-input">
+                <input id="from" type="text" placeholder="Type a place to start your journey">
+            </div>
+            <div id="from-to-switcher"></div>
+            <div class="place-input">
+                <input id="to" type="text" placeholder="Type your destination">
+            </div>
+
+            <div class="row place-input selector-wrapper">
+              <div class="col-xs-6">
+                <select class="form-control" id="travel-mode">
+                  <option>Driving</option>
+                  <option>Walking</option>
+                  <option>Bicycling</option>
+                </select>
+              </div>
+              <div class="col-xs-6">
+                <select class="form-control" id="measurement-mode">
+                  <option value="miles">Miles</option>
+                  <option value="km">Kilometres</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="place-input">
+              <button class="btn btn-primary" type="submit" id="go">Go</button>
+            </div>
+          </div>
+      </form>
+    </div>
+    <br> 
+    <div class="col-xs-12 col-sm-4">
+        <div class="row travel-info">
+            Distance:
+            <span id="distance"></span>
+        </div>
+        <br><br>
+        <div class="row travel-info">
+          <div id="travel-label">
+            Travel Time:
+            <span id="travel-time"></span>
+          </div>
+        </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-12">
+      <div class="chart hide col-sm-6" id="elevation_chart"></div>
+      <div class="chart hide col-sm-6" id="slope_chart"></div>
+    </div>
+  </div>
+  <div id="directionsPanel"></div>
+
+  <!-- End Travel form -->
+
+				  	<!-- <div class="temp-daily">
+				  	  <img src="image/temp.jpg" id="img-temp">
+				  	  <h1 id="temp-day"></h1>
+				  	  <h1 id="temp-night"></h1>
+				  	  <h4 id="temp-day-sm"></h4>
+				  	  <h4 id="temp-night-sm"></h4>
+				  	  <div class="two-column">
+					  	  <p id="wind-speed"></p>
+					  	  <h4 id="wind-speed-sm"></h4>
+					  	  <div id="power-gauge1"></div>
+					  	  <p id="humid-text"></p>
+					  	  <h4 id="humid-text-sm"></h4>
+					  	  <div id="power-gauge2"></div>
+					  </div>
+					</div> -->
+				</div>
+			  </div>
+			 	
+			  <!-- tab content for basic -->
+			  <div id="basic" class="tab-pane fade">
+				<div id="menu-cover">
+				  <!-- <img id="store-image">
+				  <h4 id="store-name">Click on markers to see store info</h4>
+				    <div class="basic-info">
+				      <p><a id="store-website"></a></p>
+				      <p id="store-phone"></p>
+			      	  <p id="open-hour-today"></p>
+			      	  <p id="store-rating"></p>
+			      	  <p><br></p>
+			      	  <button class="btn btn-primary btn-md" type="button" id="get-direction">Get Direction</button>
+					</div>
+					<div class="aster-chart">
+					  <p><strong>Store Evaluation Score</strong></p>
+					  <div id="aster-chart"></div>
+					</div>	-->					
+				</div>
+			  </div>
+				
+			  <!-- tab content for comparison-->
+			  <div id="comparison" class="tab-pane fade">
+				<div id="menu-cover">
+				<!--  <h4>Compare up to 3 recent clicked stores</h4>
+				  <p>(Click on markers to add stores)</p>
+				  <div class="bar-graph">
+				    <button class="btn btn-warning btn-md" type="button" id="bar-reset">Reset Compare</button>
+				  	<form>
+				   	  <label><input type="radio" name="mode" id="bar-grouped" value="grouped"> Grouped</label>
+  					  <label><input type="radio" name="mode" id="bar-stacked" value="stacked"> Stacked</label>
+  					</form>				  
+					<div id="bar-graph-compare"></div>		
+				  </div> --> <!--bar graph-->
+				</div><!--menu cover-->
+			  </div><!--comparison-->
+			
+		      <!-- tab content for veggie-chart -->
+		      <div id="veggie-chart" class="tab-pane fade">
+		      	<div id="menu-cover">
+		      	 <!-- <div id=veggie-text-align>
+		    		<h4>In season Veggies of this month</h4>
+		    		<div class=multi>
+		    		  <p id="seasonal-veggies"></p>
+		    		</div>
+		    	  </div> -->
+		      	</div>
+		      </div><!--veggies chart-->
+
+			  <!--tab content for directory-->
+			 <div id="directory" class="tab-pane fade">
+			  	<div id="menu-cover">
+			  	<!--   <h4>Stores near you</h4>          
+				  <table class="table table-hover" id="store-directory">
+					<thead>
+					  <tr>
+				    	<th>Label</th>
+				    	<th>Name</th>
+				    	<th>Website</th>
+				      </tr>
+				    </thead>
+				    <tbody id="add-store"></tbody>
+				  </table>-->
+			  	</div>
+			  </div>
+			
+			</div><!-- tab-contents -->
+		  </div><!-- side-menu-->
+		</div><!-- /.container -->
+	  </div><!--about section-->
+	</div><!--section-->
+
+  <div class="section">
+    <div class="about-section">
+      <div class="container">
+
+      </div>
+    </div>
+  </div>
+
+  </div><!--fullpage-->
+
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.easing.min.js" type="text/javascript"></script>
+
+  <script src="js/map.js" type="text/javascript"></script>
+  <script src="js/veggies.js" type="text/javascript"></script>		
+  <script src="js/datasheet.js" type="text/javascript"></script>
+  <script src="js/decisiontree.js" type="text/javascript"></script>
+  <script src="js/main.js" type="text/javascript"></script>
+  <script src="js/AsterChart.js" type="text/javascript"></script>
+  <script src="js/barGraph.js" type="text/javascript"></script>
+  <script src="js/Gauge.js" type="text/javascript"></script>
+
+<!-- added for google maps -->
+<!-- 
+<script>
+      // This example requires the Places library. Include the libraries=places
+      // parameter when you first load the API. For example:
+      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map_1'), {
+          center: {lat: -33.8688, lng: 151.2195},
+          zoom: 13
+        });
+        var input = /** @type {!HTMLInputElement} */(
+            document.getElementById('pac-input'));
+
+        var types = document.getElementById('type-selector');
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
+
+        var autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.bindTo('bounds', map);
+
+        var infowindow = new google.maps.InfoWindow();
+        var marker = new google.maps.Marker({
+          map: map,
+          anchorPoint: new google.maps.Point(0, -29)
+        });
+
+        autocomplete.addListener('place_changed', function() {
+          infowindow.close();
+          marker.setVisible(false);
+          var place = autocomplete.getPlace();
+          if (!place.geometry) {
+            window.alert("Autocomplete's returned place contains no geometry");
+            return;
+          }
+
+          // If the place has a geometry, then present it on a map.
+          if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+          } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);  // Why 17? Because it looks good.
+          }
+          marker.setIcon(/** @type {google.maps.Icon} */({
+            url: place.icon,
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(17, 34),
+            scaledSize: new google.maps.Size(35, 35)
+          }));
+          marker.setPosition(place.geometry.location);
+          marker.setVisible(true);
+
+          var address = '';
+          if (place.address_components) {
+            address = [
+              (place.address_components[0] && place.address_components[0].short_name || ''),
+              (place.address_components[1] && place.address_components[1].short_name || ''),
+              (place.address_components[2] && place.address_components[2].short_name || '')
+            ].join(' ');
+          }
+
+          infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+          infowindow.open(map, marker);
+        });
+
+        // Sets a listener on a radio button to change the filter type on Places
+        // Autocomplete.
+        function setupClickListener(id, types) {
+          var radioButton = document.getElementById(id);
+          radioButton.addEventListener('click', function() {
+            autocomplete.setTypes(types);
+          });
+        }
+
+        setupClickListener('changetype-all', []);
+        setupClickListener('changetype-address', ['address']);
+        setupClickListener('changetype-establishment', ['establishment']);
+        setupClickListener('changetype-geocode', ['geocode']);
+      }
+    </script> 
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDunI19vLYPOGBoh_EzjdKNhzcFIzQZLZM&libraries=places&callback=initMap"
+        async defer></script> -->
+
+    <!-- script related to travel maps -->
+      <script src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true&key=AIzaSyDunI19vLYPOGBoh_EzjdKNhzcFIzQZLZM"></script>
+  <!-- <script src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script> -->
+  
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+  <script type="text/javascript" src="js/main_maps.js?ver=2"></script>
+
+   <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-40731267-1', 'flattestroute.com');
+    ga('send', 'pageview');
+
+   </script>
+    <!-- end travel maps -->
+
+ <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDunI19vLYPOGBoh_EzjdKNhzcFIzQZLZM&libraries=places&callback=initMap" async defer></script> -->
+
+</body>
+</html>	    
